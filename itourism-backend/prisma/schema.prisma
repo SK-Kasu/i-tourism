@@ -1,0 +1,154 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  TRAVELER
+  OWNER
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING_PAYMENT
+  CONFIRMED
+  CHECKED_IN
+  CHECKED_OUT
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  HELD
+  RELEASED
+  REFUNDED
+  FAILED
+}
+
+enum PayoutStatus {
+  PENDING
+  PAID
+  RETRYING
+  FAILED
+}
+
+enum SourceType {
+  DIRECT
+  PARTNER_SYNCED
+}
+
+model User {
+  id           String     @id @default(uuid())
+  role         Role
+  fullName     String
+  phoneNumber  String     @unique
+  email        String?
+  passwordHash String
+  createdAt    DateTime   @default(now())
+
+  properties   Property[]
+  bookings     Booking[]
+  payouts      Payout[]
+}
+
+model Property {
+  id         String          @id @default(uuid())
+  ownerId    String
+  name       String
+  region     String
+  county     String
+  latitude   Float?
+  longitude  Float?
+  sourceType SourceType      @default(DIRECT)
+  createdAt  DateTime        @default(now())
+
+  owner      User            @relation(fields: [ownerId], references: [id])
+  rooms      Room[]
+  photos     PropertyPhoto[]
+
+  @@index([region])
+}
+
+model Room {
+  id            String   @id @default(uuid())
+  propertyId    String
+  name          String
+  pricePerNight Decimal
+  maxOccupancy  Int
+  amenities     Json     @default("[]")
+
+  property      Property       @relation(fields: [propertyId], references: [id])
+  availability  Availability[]
+  bookings      Booking[]
+}
+
+model Availability {
+  id       String   @id @default(uuid())
+  roomId   String
+  date     DateTime @db.Date
+  isBooked Boolean  @default(false)
+
+  room     Room     @relation(fields: [roomId], references: [id])
+
+  @@unique([roomId, date])
+  @@index([roomId, date, isBooked])
+}
+
+model PropertyPhoto {
+  id         String   @id @default(uuid())
+  propertyId String
+  url        String
+  isPrimary  Boolean  @default(false)
+
+  property   Property @relation(fields: [propertyId], references: [id])
+}
+
+model Booking {
+  id          String        @id @default(uuid())
+  travelerId  String
+  roomId      String
+  checkIn     DateTime      @db.Date
+  checkOut    DateTime      @db.Date
+  totalAmount Decimal
+  status      BookingStatus @default(PENDING_PAYMENT)
+  createdAt   DateTime      @default(now())
+
+  traveler    User          @relation(fields: [travelerId], references: [id])
+  room        Room          @relation(fields: [roomId], references: [id])
+  payment     Payment?
+  payout      Payout?
+
+  @@index([travelerId])
+  @@index([roomId])
+}
+
+model Payment {
+  id           String        @id @default(uuid())
+  bookingId    String        @unique
+  mpesaReceipt String?
+  checkoutRequestId String? @unique
+  resultDesc   String?
+  amount       Decimal
+  status       PaymentStatus @default(PENDING)
+  collectedAt  DateTime?
+
+  booking      Booking       @relation(fields: [bookingId], references: [id])
+}
+
+model Payout {
+  id               String       @id @default(uuid())
+  bookingId        String       @unique
+  ownerId          String
+  grossAmount      Decimal
+  commissionAmount Decimal
+  netPayout        Decimal
+  status           PayoutStatus @default(PENDING)
+  paidAt           DateTime?
+
+  booking          Booking      @relation(fields: [bookingId], references: [id])
+  owner            User         @relation(fields: [ownerId], references: [id])
+}

@@ -1,0 +1,30 @@
+{
+  "folders": [
+    { "path": "itourism-frontend", "name": "Frontend (React)" },
+    { "path": "itourism-backend", "name": "Backend (Node.js)" }
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": { "source.fixAll.eslint": true },
+    "editor.tabSize": 2,
+    "files.associations": { "*.env*": "dotenv" },
+    "[prisma]": { "editor.defaultFormatter": "Prisma.prisma" }
+  },
+  "extensions": {
+    "recommendations": [
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "bradlc.vscode-tailwindcss",
+      "prisma.prisma",
+      "ckolkman.vscode-postgres",
+      "humao.rest-client",
+      "eamodio.gitlens",
+      "dsznajder.es7-react-js-snippets",
+      "formulahendry.auto-rename-tag",
+      "christian-kohler.path-intellisense",
+      "mikestead.dotenv",
+      "usernamehw.errorlens"
+    ]
+  }
+}
