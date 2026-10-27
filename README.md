@@ -1,6 +1,6 @@
 # I-Tourism Planner
 
-A booking marketplace for hotels and guesthouses in Nyanza and Western Kenya, built with React, Node.js/Express, PostgreSQL, and M-Pesa (Daraja API) integration.
+A booking marketplace for hotels and guesthouses in Nyanza and Western Kenya. built with React, Node.js/Express, PostgreSQL, and M-Pesa (Daraja API) integration.
 
 This repository is a monorepo containing two independent projects:
 
